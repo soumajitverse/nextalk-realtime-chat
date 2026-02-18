@@ -1,5 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
+import cookieParser from "cookie-parser";
+
 import { redisClient } from "./config/redis.js";
 import { prisma } from "../lib/prisma.js";
 import userRouter from "./routes/user.route.js";
@@ -7,7 +9,8 @@ import { connectRabbitMQ } from "./config/rabbitmq.js";
 
 const app = express();
 
-app.use(express.json()) //is an Express middleware that parses incoming requests with JSON payloads and makes the data available in req.body.
+app.use(express.json()); //is an Express middleware that parses incoming requests with JSON payloads and makes the data available in req.body.
+app.use(cookieParser()); //is Express middleware that allows your server to read cookies sent by the client (browser).
 
 const port = process.env.PORT || 3000;
 
@@ -27,7 +30,7 @@ export async function dbConnect() {
   }
 }
 dbConnect();
-connectRabbitMQ()
+connectRabbitMQ();
 redisClient.on("connect", () => {
   console.log("✅ Redis connected successfully");
 });

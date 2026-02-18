@@ -1,6 +1,15 @@
 import { Request, Response } from "express";
 import { redisClient } from "../config/redis.js";
 import { publishToQueue } from "../config/rabbitmq.js";
+import { prisma } from "../../lib/prisma.js";
+import generateToken from "../config/token.js";
+
+interface User {
+  id: number;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export const loginUser = async (req: Request, res: Response) => {
   try {
@@ -40,7 +49,71 @@ export const loginUser = async (req: Request, res: Response) => {
       message: "OTP sent to your mail.",
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const verifyUser = async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP Required",
+      });
+    }
+    const otpKey = `otp:${email}`;
+    const storedOtp = await redisClient.get(otpKey);
+
+    if (!storedOtp || storedOtp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+    }
+
+    await redisClient.del(otpKey); // delete the otp key from redis if the enetered otp is correct
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    // if user is not present in the db
+    if (!user) {
+      const name = email.slice(0, 8);
+
+      const user: User = await prisma.user.create({
+        data: {
+          email,
+          name,
+        },
+      });
+
+      let token = generateToken(user.id); // generating token
+      console.log("Token is ", token);
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENVIRONMENT === "production",
+        sameSite:
+          process.env.NODE_ENVIRONMENT === "production" ? "none" : "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "User verfied",
+        token,
+      });
+    }
+  } catch (error: any) {
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
