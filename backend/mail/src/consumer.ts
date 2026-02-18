@@ -24,7 +24,7 @@ export const startSendOTPConsumer = async () => {
         try {
           const { to, subject, body } = JSON.parse(msg.content.toString());
           const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.email",
+            host: "smtp.gmail.com",
             port: 465,
             secure: true, // Use true for port 465, false for port 587
             auth: {

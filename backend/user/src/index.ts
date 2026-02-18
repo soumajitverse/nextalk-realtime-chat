@@ -7,6 +7,8 @@ import { connectRabbitMQ } from "./config/rabbitmq.js";
 
 const app = express();
 
+app.use(express.json()) //is an Express middleware that parses incoming requests with JSON payloads and makes the data available in req.body.
+
 const port = process.env.PORT || 3000;
 
 app.use("/api/v1/user", userRouter);

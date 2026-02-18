@@ -1,9 +1,12 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
+import { startSendOTPConsumer } from "./consumer";
 
 const app = express();
 
 const port = process.env.PORT || 3000;
+
+startSendOTPConsumer()
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Server is Live!");
