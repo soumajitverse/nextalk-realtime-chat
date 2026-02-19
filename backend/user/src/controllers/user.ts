@@ -112,6 +112,49 @@ export const verifyUser = async (req: Request, res: Response) => {
         token,
       });
     }
+
+    let token = generateToken(user.id); // generating token
+    console.log("Token is ", token);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENVIRONMENT === "production",
+      sameSite:
+        process.env.NODE_ENVIRONMENT === "production" ? "none" : "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "User verfied",
+      // token,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const myProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "User is authorised",
+      data: user,
+    });
   } catch (error: any) {
     return res.status(500).json({
       success: false,
