@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 startSendOTPConsumer()
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Server is Live!");
+  res.send("Mail service is Live!");
 });
 
 app.listen(port, () => {

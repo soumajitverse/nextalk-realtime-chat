@@ -6,6 +6,7 @@ import { redisClient } from "./config/redis.js";
 import { prisma } from "../lib/prisma.js";
 import userRouter from "./routes/user.route.js";
 import { connectRabbitMQ } from "./config/rabbitmq.js";
+import cors from "cors";
 
 const app = express();
 
@@ -14,10 +15,22 @@ app.use(cookieParser()); //is Express middleware that allows your server to read
 
 const port = process.env.PORT || 3000;
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.ALLOWED_ORIGIN || "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true, // permit to flow cookie from client to server and vice-versa
+  }),
+);
+
 app.use("/api/v1/user", userRouter);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Server is Live!");
+  res.send("User service is Live!");
 });
 
 export async function dbConnect() {
