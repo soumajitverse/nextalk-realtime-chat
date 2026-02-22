@@ -6,7 +6,7 @@ import {
   updateProfile,
   verifyUser,
 } from "../controllers/user.js";
-import isUserAuth from "../middleware/user.auth.js";
+import isUserAuth from "../middlewares/user.auth.js";
 const userRouter = express.Router();
 
 userRouter.post("/login", loginUser);
