@@ -13,4 +13,4 @@ import { Redis } from "ioredis";
 
 
 export const redisClient = new Redis(process.env.REDIS_URL);
-const client = new Redis("rediss://default:AbyiAAIncDJmNTM4YzQyMjA0NWM0NDllYjZkMmQ2M2NiZTUzMTMxYXAyNDgyOTA@loving-squirrel-48290.upstash.io:6379");
+
